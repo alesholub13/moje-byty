@@ -1,56 +1,57 @@
 import streamlit as st
+import pandas as pd
 
-# 1. Nastavení vzhledu aplikace
-st.set_page_config(page_title="Správa majetku", page_icon="🏠")
+# Nastavení stránky
+st.set_page_config(page_title="Správa nemovitostí", layout="wide")
 
-# 2. Funkce pro kontrolu hesla
+# Jednoduché heslo
 def check_password():
     if "password_correct" not in st.session_state:
-        st.session_state["password_correct"] = False
+        st.session_state.password_correct = False
     
-    if not st.session_state["password_correct"]:
-        st.title("🔐 Soukromý systém")
-        heslo = st.text_input("Zadej přístupový kód", type="password")
-        if heslo == "1234":
-            st.session_state["password_correct"] = True
-            st.rerun()
-        elif heslo != "":
-            st.error("Špatné heslo, zkus to znova.")
+    if not st.session_state.password_correct:
+        st.title("🔐 Vstup do systému")
+        password = st.text_input("Zadejte přístupový kód", type="password")
+        if st.button("Přihlásit se"):
+            if password == "1234":
+                st.session_state.password_correct = True
+                st.rerun()
+            else:
+                st.error("❌ Špatné heslo")
         return False
     return True
 
-# 3. Hlavní obsah aplikace (spustí se jen po hesle)
 if check_password():
-    st.sidebar.title("🏠 Menu")
-    volba = st.sidebar.selectbox("Co jdeme řešit?", 
-        ["Přehled bytů", "Předávací protokol", "Auto (Arteon)", "Fotovoltaika"])
+    st.sidebar.title("🏠 Menu nemovitostí")
+    choice = st.sidebar.radio("Kam chcete jít?", ["Moje Byty", "Předávací protokol", "Kontakty & Správa"])
 
-    if volba == "Přehled bytů":
-        st.header("📊 Moje nemovitosti")
-        st.info("Zde uvidíš výnosy a přehled nájemníků.")
-        # Sem v budoucnu napojíme tvou Google tabulku
-
-    elif volba == "Předávací protokol":
-        st.header("📸 Stavy měřidel")
-        byt = st.selectbox("Vyber byt", ["Byt Stará Ves", "Byt 2"])
+    if choice == "Moje Byty":
+        st.title("📂 Přehled nemovitostí")
+        
         col1, col2 = st.columns(2)
         with col1:
-            st.number_input("Elektřina (kWh)", step=1)
-            st.number_input("Voda (m3)", step=1)
-        with col2:
-            st.number_input("Plyn (m3)", step=1)
-            st.file_uploader("Vyfoť měřidlo", type=['jpg', 'png'])
+            st.subheader("Byt 57m² (Cihla)")
+            st.info("Aktuální stav: V rekonstrukci")
+            st.write("- Hotová nivelačka\n- Rozpracovaná elektřina\n- Plánování kuchyně")
         
-        if st.button("Uložit data"):
-            st.success("Uloženo!")
+        with col2:
+            st.subheader("Náklady na rekonstrukci")
+            st.number_input("Materiál (Kč)", value=0)
+            st.number_input("Práce (Kč)", value=0)
 
-    elif volba == "Auto (Arteon)":
-        st.header("🏎 VW Arteon Shooting Brake")
-        st.write("Technické údaje a servisní deník.")
-        st.text("Motor: 2.0 TDI 110 kW")
-        st.date_input("Příští výměna oleje")
+    elif choice == "Předávací protokol":
+        st.title("📝 Předávací protokol měřidel")
+        st.write("Zapište aktuální stavy při předání nebo kontrole bytu.")
+        
+        with st.form("protokol"):
+            datum = st.date_input("Datum odečtu")
+            elektřina = st.text_input("Elektřina (stav v kWh)")
+            voda = st.text_input("Voda (stav v m³)")
+            plyn = st.text_input("Plyn (stav v m³)")
+            st.form_submit_button("Uložit stavy")
 
-    elif volba == "Fotovoltaika":
-        st.header("☀️ FVE & SolarXBox")
-        st.write("Sledování přebytků do vody.")
-        st.metric("Výkon panelů", "10 kWp")
+    elif choice == "Kontakty & Správa":
+        st.title("📞 Důležité kontakty")
+        st.write("- **Havarijní služba:** 123 456 789")
+        st.write("- **Elektrikář:** Jan Novák (777 888 999)")
+        st.write("- **Správce objektu:** Pan Svoboda")
